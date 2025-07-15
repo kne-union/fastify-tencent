@@ -3,7 +3,7 @@ const fp = require('fastify-plugin');
 const COS = require('cos-nodejs-sdk-v5');
 
 module.exports = fp(async (fastify, options) => {
-  const { services } = fastify.aliyun;
+  const { services } = fastify.tencent;
   const createClient = () => {
     return new COS({
       SecretId: options.oss.accessKeyId,
