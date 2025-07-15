@@ -1,0 +1,49 @@
+{
+  "name": "@kne/fastify-tencent",
+  "version": "1.0.0",
+  "description": "对接腾讯云服务",
+  "main": "index.js",
+  "scripts": {
+    "init": "husky",
+    "dev": "cd tests && nodemon ./server.js",
+    "start": "node ./index.js",
+    "doc": "node ./open-api.js",
+    "build:md": "npx @kne/md-doc",
+    "start:md": "npx @kne/md-doc --watch",
+    "prettier": "prettier --config .prettierrc --write '{libs/**/*,index}.{js,jsx,ts,tsx,json,css,scss}'",
+    "lint-staged": "npx lint-staged"
+  },
+  "lint-staged": {
+    "**/*.md": [
+      "git add"
+    ],
+    "{libs/**/*,index}.{js,jsx,ts,tsx,json,css,scss}": [
+      "prettier --config .prettierrc --write",
+      "git add"
+    ]
+  },
+  "files": [
+    "index.js",
+    "libs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kne-union/fastify-aliyun.git"
+  },
+  "keywords": [],
+  "author": "linzp",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kne-union/fastify-aliyun/issues"
+  },
+  "homepage": "https://github.com/kne-union/fastify-aliyun#readme",
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.15.1",
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "@kne/fastify-namespace": "*",
+    "@kne/fastify-sequelize": "*",
+    "fastify-plugin": ">=5"
+  }
+}
