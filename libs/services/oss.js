@@ -1,7 +1,6 @@
 const fp = require('fastify-plugin');
 const COS = require('cos-nodejs-sdk-v5');
 const stream = require('node:stream');
-
 module.exports = fp(async (fastify, options) => {
   const { services } = fastify.tencent;
   const createClient = () => {
@@ -59,25 +58,27 @@ module.exports = fp(async (fastify, options) => {
     return result.Body;
   };
 
-  const getFileStream = ({ filename }) => {
+  const getFileStream = async ({ filename }) => {
     const client = createClient();
-    // 腾讯云 COS SDK 可以通过设置 Output 参数来实现流式下载
-    // 创建一个可读流
-    const readableStream = new stream.PassThrough();
+    return new Promise((resolve, reject) => {
+      // 腾讯云 COS SDK 可以通过设置 Output 参数来实现流式下载
+      // 创建一个可读流
+      const readableStream = new stream.PassThrough();
 
-    client.getObject({
-      Bucket: options.oss.bucket,
-      Region: options.oss.region,
-      Key: `${options.oss.baseDir}/${filename}`,
-      Output: readableStream
-    }, (err, data) => {
-      if (err) {
-        throw new Error(err);
-      } else {
-        // 不需要在这里 resolve，因为数据会被写入到 readableStream
-      }
+      client.getObject({
+        Bucket: options.oss.bucket,
+        Region: options.oss.region,
+        Key: `${options.oss.baseDir}/${filename}`,
+        Output: readableStream
+      }, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          // 不需要在这里 resolve，因为数据会被写入到 readableStream
+        }
+      });
+      resolve(readableStream);
     });
-    return readableStream;
   };
 
   const getFileLink = ({ filename, expires }) => {
