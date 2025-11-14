@@ -1,6 +1,6 @@
-
 const fp = require('fastify-plugin');
 const COS = require('cos-nodejs-sdk-v5');
+const stream = require('node:stream');
 
 module.exports = fp(async (fastify, options) => {
   const { services } = fastify.tencent;
@@ -17,10 +17,7 @@ module.exports = fp(async (fastify, options) => {
     const client = createClient();
     await new Promise((resolve, reject) => {
       client.putObject({
-        Bucket: options.oss.bucket,
-        Region: options.oss.region,
-        Key: `${options.oss.baseDir}/${filename}`,
-        Body: file
+        Bucket: options.oss.bucket, Region: options.oss.region, Key: `${options.oss.baseDir}/${filename}`, Body: file
       }, (err, data) => {
         if (err) {
           reject(err);
@@ -35,10 +32,7 @@ module.exports = fp(async (fastify, options) => {
     const client = createClient();
     await new Promise((resolve, reject) => {
       client.putObject({
-        Bucket: options.oss.bucket,
-        Region: options.oss.region,
-        Key: `${options.oss.baseDir}/${filename}`,
-        Body: stream
+        Bucket: options.oss.bucket, Region: options.oss.region, Key: `${options.oss.baseDir}/${filename}`, Body: stream
       }, (err, data) => {
         if (err) {
           reject(err);
@@ -53,9 +47,7 @@ module.exports = fp(async (fastify, options) => {
     const client = createClient();
     const result = await new Promise((resolve, reject) => {
       client.getObject({
-        Bucket: options.oss.bucket,
-        Region: options.oss.region,
-        Key: `${options.oss.baseDir}/${filename}`
+        Bucket: options.oss.bucket, Region: options.oss.region, Key: `${options.oss.baseDir}/${filename}`
       }, (err, data) => {
         if (err) {
           reject(err);
@@ -67,29 +59,25 @@ module.exports = fp(async (fastify, options) => {
     return result.Body;
   };
 
-  const getFileStream = async ({ filename }) => {
+  const getFileStream = ({ filename }) => {
     const client = createClient();
-    return new Promise((resolve, reject) => {
-      // 腾讯云 COS SDK 可以通过设置 Output 参数来实现流式下载
-      // 创建一个可读流
-      const stream = require('stream');
-      const readableStream = new stream.PassThrough();
-      
-      client.getObject({
-        Bucket: options.oss.bucket,
-        Region: options.oss.region,
-        Key: `${options.oss.baseDir}/${filename}`,
-        Output: readableStream
-      }, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          // 不需要在这里 resolve，因为数据会被写入到 readableStream
-        }
-      });
-      
-      resolve(readableStream);
+    // 腾讯云 COS SDK 可以通过设置 Output 参数来实现流式下载
+    // 创建一个可读流
+    const readableStream = new stream.PassThrough();
+
+    client.getObject({
+      Bucket: options.oss.bucket,
+      Region: options.oss.region,
+      Key: `${options.oss.baseDir}/${filename}`,
+      Output: readableStream
+    }, (err, data) => {
+      if (err) {
+        throw new Error(err);
+      } else {
+        // 不需要在这里 resolve，因为数据会被写入到 readableStream
+      }
     });
+    return readableStream;
   };
 
   const getFileLink = ({ filename, expires }) => {
